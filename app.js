@@ -14,6 +14,9 @@ app.all('*', (req, res, next) => {
     res.header('Access-Control-Max-Age', '1728000')
     res.header('Content-Type', 'application/json;charset=utf-8')
     res.header("X-Powered-By", 'Express');
+
+    console.log(5678567895678)
+
     if (req.method == 'OPTIONS') {
         res.sendStatus(200);
     } else {
@@ -51,7 +54,7 @@ mongoose.connect(baseUrl, {
     if (err) {
         console.log('数据库连接失败', err)
     } else {
-        console.log('数据库连接成功');
+        console.log('数据库连接成功', 76890789);
         app.listen('8088')
     }
 })
