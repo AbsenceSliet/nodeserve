@@ -44,7 +44,7 @@ routes(app);
 
 // 数据库连接
 const mongoose = require('mongoose')
-const baseUrl = isDevMode ? `mongodb://127.0.0.1:27017/vuemall` : `mongodb://blog_runner:admin@127.0.0.1/vuemall`
+const baseUrl = isDevMode ? `mongodb://127.0.0.1:27017/vuemall` : `mongodb://blog_runner:admin@127.0.0.1:27017/vuemall`
 mongoose.connect(baseUrl, {
     useNewUrlParser: true
 }, err => {
