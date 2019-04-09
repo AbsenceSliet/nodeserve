@@ -1,13 +1,14 @@
 {
-    "name": "server",
+    "name": "nodeServer",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "cross-env NODE_ENV=development nodemon --harmony start.js"
+        "dev": "cross-env NODE_ENV=development nodemon --harmony start.js",
+        "start": "cross-env NODE_ENV=production nodemon --harmony start.js"
     },
-    "author": "",
+    "author": "Garen",
     "license": "ISC",
     "dependencies": {
         "babel": "^6.23.0",
