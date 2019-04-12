@@ -36,7 +36,7 @@ const adminSchema = new Schema({
     }, //1:普通会员 2:超级管理员
     avatar: {
         type: String,
-        default: 'http://up.qqjia.com/z//26/tu32814_1.jpg'
+        default: 'default.jpg'
     }
 })
 adminSchema.index({ admin_id: 1 })

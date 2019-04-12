@@ -42,7 +42,7 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
     extended: true
 }))
-
+app.use(express.static('public/img'));
 routes(app);
 
 // 数据库连接

@@ -14,6 +14,8 @@ class Admin extends BaseComponent {
         this.login = this.login.bind(this)
         this.decodePassword = this.decodePassword.bind(this)
         this.md5Decode = this.md5Decode.bind(this)
+        this.uploadImage = this.uploadImage.bind(this)
+
     }
     async login(req, res, next) {
 
@@ -98,8 +100,9 @@ class Admin extends BaseComponent {
 
     //上传头像
     async uploadImage(req, res, next) {
-        console.log(req)
-        let { admin_id } = req.params.admin_id
+        console.log(req.params)
+        let { admin_id } = req.params
+        console.log(admin_id)
         if (!admin_id || !Number(admin_id)) {
             handleError({
                 res,
@@ -108,9 +111,23 @@ class Admin extends BaseComponent {
             })
         }
         try {
+            let image_path = await this.getPath(req);
 
+            await AdminModel.findOneAndUpdate({ admin_id: admin_id }, { $set: { avatar: image_path } })
+            handleSuccess({
+                res,
+                code: 1,
+                message: '上传图片成功',
+                result: {
+                    image_path
+                }
+            })
         } catch (err) {
-
+            handleError({
+                res,
+                code: 0,
+                message: '上传图片失败'
+            })
         }
     }
 }
