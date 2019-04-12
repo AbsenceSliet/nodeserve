@@ -76,7 +76,6 @@ class Admin extends BaseComponent {
     }
     async getAdminInfo(req, res, next) {
         const slogan = req.headers.authorization.split(' ')[1]
-        console.log(slogan, 'slogan')
         let info = await AdminModel.findOne(({ slogan: slogan }));
         console.log(info)
         let roles = [];
@@ -86,11 +85,33 @@ class Admin extends BaseComponent {
             result: {
                 username: info.username,
                 userstatus: info.status,
+                id: info._id,
+                create_time: info.create_time,
+                avatar: info.avatar,
+                admin_id: info.admin_id,
                 roles
             },
             message: '查询成功',
             code: 1
         })
+    }
+
+    //上传头像
+    async uploadImage(req, res, next) {
+        console.log(req)
+        let { admin_id } = req.params.admin_id
+        if (!admin_id || !Number(admin_id)) {
+            handleError({
+                res,
+                code: 0,
+                message: 'admin_id参数错误'
+            })
+        }
+        try {
+
+        } catch (err) {
+
+        }
     }
 }
 export default new Admin()

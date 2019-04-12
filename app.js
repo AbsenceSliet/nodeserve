@@ -15,7 +15,6 @@ app.all('*', (req, res, next) => {
     res.header('Content-Type', 'application/json;charset=utf-8')
     res.header("X-Powered-By", 'Express');
 
-    console.log(5678567895678)
 
     if (req.method == 'OPTIONS') {
         res.sendStatus(200);
@@ -26,6 +25,7 @@ app.all('*', (req, res, next) => {
 app.use((req, res, next) => {
     let TokenIsOk = authIsVerified(req)
     let { url } = req
+    console.log(url, 'url')
     if (url.indexOf('/auth') > -1) {
         if (TokenIsOk) {
             next()
