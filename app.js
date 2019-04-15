@@ -4,7 +4,7 @@ import express from 'express'
 import routes from './routes/index.js'
 import bodyParser from 'body-parser'
 import authIsVerified from './utils/auth'
-import { isDevMode, isProdMode } from './app.config'
+import { isDevMode, MONGODB } from './app.config'
 import { handleSuccess, handleError } from './utils/helper'
 const app = express()
 
@@ -47,7 +47,7 @@ routes(app);
 
 // 数据库连接
 const mongoose = require('mongoose')
-const baseUrl = isDevMode ? `mongodb://127.0.0.1:27017/vuemall` : `mongodb://blog_runner:admin@127.0.0.1:27017/vuemall`
+const baseUrl = isDevMode ? `mongodb://127.0.0.1:27017/vuemall` : `mongodb://${MONGODB.username}:${MONGODB.password}@127.0.0.1:27017/vuemall`
 mongoose.connect(baseUrl, {
     useNewUrlParser: true
 }, err => {
