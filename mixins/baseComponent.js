@@ -5,10 +5,13 @@ import path from 'path'
 import fs from 'fs'
 import gm from 'gm'
 import { handleSuccess, handleError } from '../utils/helper'
+import QINIU from '../app.config'
+import qiniu from 'qiniu'
+
 
 export default class BaseComponent {
     constructor() {
-        this.idList = ['admin_id', "img_id"]
+        this.idList = ['admin_id', "img_id", "article_id", "category_id"]
     }
     async fetch(url = '', data = {}, type = 'GET', resType = 'JSON') {
         type = type.toUpperCase();
@@ -62,6 +65,7 @@ export default class BaseComponent {
         }
         try {
             const idData = await Ids.findOne();
+            console.log(idData);
             idData[type]++;
             await idData.save();
             return idData[type]
@@ -114,6 +118,76 @@ export default class BaseComponent {
                         fs.unlinkSync(file.file.path)
                     }
                     reject('保存图片失败')
+                }
+            })
+        })
+    }
+
+    //上传至七牛
+    async upQiNiu(req) {
+        return new Promise((resolve, reject) => {
+            const form = new formidable.IncomingForm()
+            const uploadpath = path.join(__dirname, '../public/img/')
+            form.uploadDir = uploadpath
+            form.parse(req, async(err, fileds, file) => {
+                let img_id;
+                try {
+                    img_id = await this.getId('img_id')
+                } catch (err) {
+                    fs.unlinkSync(file.file.path)
+                    reject('获取图片id失败')
+                }
+                const hashname = (new Date().getTime() + Math.ceil(Math.random() * 10000).toString(16)) + img_id
+                const extname = path.extname(file.file.name)
+                const fullname = hashname + extname
+                const targetFile = path.join(uploadpath, fullname)
+                try {
+                    fs.renameSync(file.file.path, targetFile)
+                    const token = this.uptoken()
+                } catch (err) {
+                    console.log('保存图片失败')
+                    if (fs.existsSync(targetFile)) {
+                        fs.unlinkSync(targetFile)
+                    } else {
+                        fs.unlinkSync(file.file.path)
+                    }
+                    reject('保存图片失败')
+                }
+            })
+        })
+    }
+
+    //获取七牛token
+    uptoken() {
+        var mac = new qiniu.auth.digest.Mac(QINIU.accessKey, QINIU.secretKey);
+
+        var options = {
+            scope: QINUI.bucketKey
+        }
+
+        var putPolicy = new qiniu.rs.PutPolicy(options);
+
+        return putPolicy.uploadToken(mac);
+    }
+
+    uploadFile(upToken, key, localFile) {
+        return new Promise((resolve, reject) => {
+            const putExtra = new qiniu.form_up.PutExtra();
+            const config = new qiniu.conf.Config();
+            config.zone = qiniu.zone.Zone_z0; // 空间对应的机房
+            const formUploader = new qiniu.form_up.FormUploader(config);
+            formUploader.putFile(upToken, key, localFile, putExtra, function(respErr,
+                respBody, respInfo) {
+                if (respErr) {
+                    reject(respErr)
+                    console.log('图片上传七牛云')
+                }
+                if (respInfo.statusCode == 200) {
+                    console.log(' 上传成功')
+                    console.log(respBody);
+                } else {
+                    console.log(respInfo.statusCode);
+                    console.log(respBody);
                 }
             })
         })

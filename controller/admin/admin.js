@@ -102,7 +102,6 @@ class Admin extends BaseComponent {
     async uploadImage(req, res, next) {
         console.log(req.params)
         let { admin_id } = req.params
-        console.log(admin_id)
         if (!admin_id || !Number(admin_id)) {
             handleError({
                 res,
@@ -112,7 +111,6 @@ class Admin extends BaseComponent {
         }
         try {
             let image_path = await this.getPath(req);
-
             await AdminModel.findOneAndUpdate({ admin_id: admin_id }, { $set: { avatar: image_path } })
             handleSuccess({
                 res,
