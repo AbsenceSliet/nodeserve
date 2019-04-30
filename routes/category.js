@@ -7,5 +7,6 @@ const router = express.Router()
 router.post('/create', Category.createCate)
 
 router.get('/categorylist', Category.categoryList)
+router.post('/update', Category.updateCategory)
 
 export default router

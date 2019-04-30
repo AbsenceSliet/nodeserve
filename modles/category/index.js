@@ -10,5 +10,6 @@ const categorySchema = new Schema({
     level: { type: Number, default: 0 },
     visual: { type: Number, default: 1 }
 })
+categorySchema.index({ admin_id: 1 })
 const Category = mongoose.model('Category', categorySchema)
 export default Category

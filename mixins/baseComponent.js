@@ -65,7 +65,7 @@ export default class BaseComponent {
         }
         try {
             const idData = await Ids.findOne();
-            console.log(idData);
+            console.log(idData, 'idData');
             idData[type]++;
             await idData.save();
             return idData[type]
