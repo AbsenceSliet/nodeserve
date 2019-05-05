@@ -10,7 +10,7 @@ class Article extends BaseComponent {
         this.articleList = this.articleList.bind(this)
     }
     async createArticle(req, res, next) {
-        const { title, abstract, content, category_id, tags } = req.body
+        const { title, abstract, content, category_id, category_name, tags } = req.body
         if (!title) {
             handleError({
                 res,
@@ -51,6 +51,7 @@ class Article extends BaseComponent {
                 const articleObj = {
                     title: title,
                     category_id: category_id,
+                    category_name: category_name || '未分类',
                     desc: abstract,
                     tags: tags,
                     content: content,

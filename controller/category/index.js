@@ -42,13 +42,13 @@ class Category extends BaseComponent {
                 }
                 const newCate = new CategoryModel(cate_obj)
                 try {
-                    const resultCate = await newCate.save()
-                    console.log(resultCate, 'resultCate');
+                    await newCate.save()
+                    let caregoryList = await CategoryModel.find({})
                     handleSuccess({
                         res,
                         code: 1,
                         message: '创建成功',
-                        result: resultCate
+                        result: caregoryList
                     })
                 } catch (err) {
                     handleError({
@@ -69,7 +69,6 @@ class Category extends BaseComponent {
         } else {
             params = {}
         }
-        console.log(params, 'params', req.query);
         const list = await CategoryModel.find(params)
         handleSuccess({
             code: 1,
@@ -89,12 +88,12 @@ class Category extends BaseComponent {
         } else {
             let params = { name, level, visual }
             try {
-                let updateItem = await CategoryModel.findOneAndUpdate({ category_id }, { $set: params })
-                console.log(updateItem, 'updateItem');
+                await CategoryModel.findOneAndUpdate({ category_id }, { $set: params })
+                let caregoryList = await CategoryModel.find({})
                 handleSuccess({
                     code: 1,
                     res,
-                    result: updateItem,
+                    result: caregoryList,
                     message: '更新分类成功'
                 })
             } catch (err) {
@@ -105,9 +104,26 @@ class Category extends BaseComponent {
                 })
             }
         }
-
-
-
+    }
+    async deleteCategory(req, res) {
+        let { category_id } = req.query
+        console.log(category_id, 'category_id');
+        try {
+            let deleteItem = await CategoryModel.findOneAndRemove({ category_id })
+            let caregoryList = await CategoryModel.find({})
+            handleSuccess({
+                code: 1,
+                res,
+                result: caregoryList,
+                message: '删除成功'
+            })
+        } catch (err) {
+            handleError({
+                code: 0,
+                res,
+                message: '删除失败'
+            })
+        }
     }
 }
 export default new Category()

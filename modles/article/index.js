@@ -7,6 +7,7 @@ const Schema = mongoose.Schema
 const ArticleSchema = new Schema({
     title: { type: String, default: '' },
     category_id: { type: Number, isRequired: true },
+    category_name: { type: String, isRequired: true },
     desc: { type: String, default: '' },
     tags: { type: Array, default: [] },
     content: { type: String, default: '' },
