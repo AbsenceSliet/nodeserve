@@ -10,14 +10,14 @@ class Article extends BaseComponent {
         this.articleList = this.articleList.bind(this)
     }
     async createArticle(req, res, next) {
-        const { title, abstract, content, category_id, category_name, tags } = req.body
+        const { title, desc, content, category_id, category_name, tags } = req.body
         if (!title) {
             handleError({
                 res,
                 code: 0,
                 message: '必须填写文章标题'
             })
-        } else if (!abstract) {
+        } else if (!desc) {
             handleError({
                 res,
                 code: 0,
@@ -52,7 +52,7 @@ class Article extends BaseComponent {
                     title: title,
                     category_id: category_id,
                     category_name: category_name || '未分类',
-                    desc: abstract,
+                    desc: desc,
                     tags: tags,
                     content: content,
                     article_id: article_id,
@@ -88,6 +88,85 @@ class Article extends BaseComponent {
             result: list,
             message: '查询成功'
         })
+    }
+    async getArticleDeatil(req, res, next) {
+        const article_id = req.params.article_id
+        if (!article_id || !Number(article_id)) {
+            console.log('获取文章详情页面参数ID错误');
+            handleError({
+                res,
+                code: 0,
+                message: '文章详情参数ID错误'
+            })
+            return
+        }
+        try {
+            const article = await ArticleModel.findOne({ article_id })
+            if (article) {
+                handleSuccess({
+                    res,
+                    code: 1,
+                    result: article,
+                    message: '获取文章详情成功'
+                })
+            } else {
+                handleError({
+                    res,
+                    code: 0,
+                    message: '获取文章详情失败'
+                })
+            }
+        } catch (err) {
+            handleError({
+                res,
+                code: 0,
+                message: '获取文章详情失败'
+            })
+        }
+    }
+    async updateArticle(req, res) {
+        const { title, desc, content, article_id, category_id, category_name, tags } = req.body
+        console.log(desc);
+        if (!title) {
+            handleError({
+                res,
+                code: 0,
+                message: '必须填写文章标题'
+            })
+        } else if (!desc) {
+            handleError({
+                res,
+                code: 0,
+                message: '必须填写文章简介'
+            })
+        } else if (!content) {
+            handleError({
+                res,
+                code: 0,
+                message: '必须填写文章内容'
+            })
+        } else {
+            try {
+                let newData = { title, desc, content, article_id, category_id, category_name, tags }
+                newData.update_time = moment().format('YYYY-MM-DD HH:mm:ss')
+                const article = await ArticleModel.findOneAndUpdate({ article_id }, { $set: newData })
+                console.log(article, 'article');
+                handleSuccess({
+                    res,
+                    code: 1,
+                    message: '更新文章内容成功',
+                    result: article
+                })
+            } catch (err) {
+                handleError({
+                    code: 0,
+                    res,
+                    err: '更新文章失败',
+                    mesage: '更新文章失败'
+                })
+            }
+
+        }
     }
 }
 export default new Article()

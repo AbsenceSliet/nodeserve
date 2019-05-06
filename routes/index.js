@@ -7,6 +7,6 @@ import category from './category'
 
 export default app => {
     app.use('/api/user', admin)
-    app.use('/api/article', article)
-    app.use('/api/category', category)
+    app.use('/api/auth/article', article)
+    app.use('/api/auth/category', category)
 }

@@ -20,6 +20,7 @@ class Admin extends BaseComponent {
     async login(req, res, next) {
 
         const { username, password, status = 1 } = req.body
+        console.log(username);
         if (!username) {
             throw new Error('用户名参数错误')
         } else if (!password) {
@@ -50,10 +51,12 @@ class Admin extends BaseComponent {
                 message: '用户名已经存在，密码错误'
             })
         } else {
+
             const token = jwt.sign({
                 data: AUTH.data,
                 exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
             }, AUTH.jwtToken)
+            console.log(token, 'token', AUTH.data, '----', AUTH.jwtToken);
             await AdminModel.updateOne({ _id: admin._id }, { $set: { slogan: token } })
             handleSuccess({
                 res,
@@ -77,8 +80,25 @@ class Admin extends BaseComponent {
         return Crypto.createHash('md5').update(password).digest('jac')
     }
     async getAdminInfo(req, res, next) {
+        if (!req.headers.authorization) {
+            handleError({
+                res,
+                code: 0,
+                message: '请登录!',
+                err: '未登录'
+            })
+        }
         const slogan = req.headers.authorization.split(' ')[1]
         let info = await AdminModel.findOne(({ slogan: slogan }));
+        if (!info) {
+            handleError({
+                res,
+                code: 0,
+                message: 'Token失效!',
+                err: 'Token失效'
+            })
+            return
+        }
         console.log(info)
         let roles = [];
         roles = info.status == 1 ? ['editor'] : ['editor', 'admin']
