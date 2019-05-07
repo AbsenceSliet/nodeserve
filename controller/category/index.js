@@ -42,13 +42,13 @@ class Category extends BaseComponent {
                 }
                 const newCate = new CategoryModel(cate_obj)
                 try {
-                    await newCate.save()
-                    let caregoryList = await CategoryModel.find({})
+                    let creatCateItem = await newCate.save()
+                        // let caregoryList = await CategoryModel.find({})
                     handleSuccess({
                         res,
                         code: 1,
                         message: '创建成功',
-                        result: caregoryList
+                        result: creatCateItem
                     })
                 } catch (err) {
                     handleError({
@@ -88,12 +88,11 @@ class Category extends BaseComponent {
         } else {
             let params = { name, level, visual }
             try {
-                await CategoryModel.findOneAndUpdate({ category_id }, { $set: params })
-                let caregoryList = await CategoryModel.find({})
+                let updateCate = await CategoryModel.findOneAndUpdate({ category_id }, { $set: params }, { new: true })
                 handleSuccess({
                     code: 1,
                     res,
-                    result: caregoryList,
+                    result: updateCate,
                     message: '更新分类成功'
                 })
             } catch (err) {
@@ -106,15 +105,23 @@ class Category extends BaseComponent {
         }
     }
     async deleteCategory(req, res) {
-        let { category_id } = req.query
+        let category_id = req.params.category_id
         console.log(category_id, 'category_id');
+        if (!category_id || !Number(category_id)) {
+            console.log('获取分类参数ID错误');
+            handleError({
+                res,
+                code: 0,
+                message: '分类参数ID错误'
+            })
+            return
+        }
         try {
             let deleteItem = await CategoryModel.findOneAndRemove({ category_id })
-            let caregoryList = await CategoryModel.find({})
             handleSuccess({
                 code: 1,
                 res,
-                result: caregoryList,
+                result: deleteItem,
                 message: '删除成功'
             })
         } catch (err) {

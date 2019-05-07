@@ -8,6 +8,6 @@ router.post('/create', Category.createCate)
 
 router.get('/categorylist', Category.categoryList)
 router.post('/update', Category.updateCategory)
-router.get('/delete', Category.deleteCategory)
+router.get('/delete/:category_id', Category.deleteCategory)
 
 export default router

@@ -168,5 +168,41 @@ class Article extends BaseComponent {
 
         }
     }
+    async deleteArticle(req, res) {
+        const article_id = req.params.article_id
+        if (!article_id || !Number(article_id)) {
+            console.log('获取文章详情页面参数ID错误');
+            handleError({
+                res,
+                code: 0,
+                message: '文章详情参数ID错误'
+            })
+            return
+        }
+        try {
+            const deleteItem = await ArticleModel.findOneAndRemove({ article_id })
+            if (deleteItem) {
+                handleSuccess({
+                    res,
+                    code: 1,
+                    result: deleteItem,
+                    message: '删除文章成功'
+                })
+            } else {
+                handleError({
+                    res,
+                    code: 0,
+                    message: '删除文章失败'
+                })
+            }
+        } catch (err) {
+            handleError({
+                code: 0,
+                res,
+                err: err,
+                mesage: '删除文章失败'
+            })
+        }
+    }
 }
 export default new Article()
