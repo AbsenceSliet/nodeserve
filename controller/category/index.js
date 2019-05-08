@@ -69,7 +69,7 @@ class Category extends BaseComponent {
         } else {
             params = {}
         }
-        const list = await CategoryModel.find(params)
+        const list = await CategoryModel.find(params).sort({ level: -1 })
         handleSuccess({
             code: 1,
             res,

@@ -9,6 +9,8 @@ router.post('/update', Article.updateArticle)
 router.get('/articlelist', Article.articleList)
 router.get('/getarticledeatil/:article_id', Article.getArticleDeatil)
 router.get('/delete/:article_id', Article.deleteArticle)
+router.get('/articlecount', Article.getArticleCount)
+
 
 
 export default router

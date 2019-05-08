@@ -44,7 +44,7 @@ class Admin extends BaseComponent {
                 admin_id: admin_id
             }
             await AdminModel.create(adminContent)
-            handleSuccess({ res, code: 2, message: '注册管理员成功' })
+            handleSuccess({ res, code: 1, message: '注册管理员成功' })
         } else if (newpassword != admin.password) {
             handleError({
                 res,

@@ -81,13 +81,39 @@ class Article extends BaseComponent {
         }
     }
     async articleList(req, res, next) {
-        const list = await ArticleModel.find()
-        handleSuccess({
-            code: 1,
-            res,
-            result: list,
-            message: '查询成功'
-        })
+        const { offset = 0, limit = 20 } = req.query
+        try {
+            const list = await ArticleModel.find().sort({ article_id: 1 }).limit(Number(limit)).skip(Number(offset))
+            handleSuccess({
+                code: 1,
+                res,
+                result: list,
+                message: '查询成功'
+            })
+        } catch (err) {
+            handleError({
+                code: 0,
+                res,
+                message: '查询失败'
+            })
+        }
+    }
+    async getArticleCount(req, res) {
+        try {
+            const count = await ArticleModel.find().count()
+            handleSuccess({
+                res,
+                result: count,
+                message: '获取文章数量成功',
+                code: 1
+            })
+        } catch (err) {
+            handleError({
+                err,
+                message: '获取文章数量失败',
+                code: 0
+            })
+        }
     }
     async getArticleDeatil(req, res, next) {
         const article_id = req.params.article_id
