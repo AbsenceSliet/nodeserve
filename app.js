@@ -1,11 +1,13 @@
 'use strict'
 
 import express from 'express'
+import morgan from 'morgan'
 import routes from './routes/index.js'
 import bodyParser from 'body-parser'
 import authIsVerified from './utils/auth'
 import { isDevMode, MONGODB } from './app.config'
 import { handleSuccess, handleError } from './utils/helper'
+import { accessLog, errorLog } from './utils/logs'
 const app = express()
 
 app.all('*', (req, res, next) => {
@@ -42,6 +44,25 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
     extended: true
 }))
+
+// setup the logger
+if (!isDevMode) {
+    morgan.format('accesslog', '[accesslog] :method :url :status ');
+    app.use(morgan('accesslog', {
+        stream: accessLog,
+        skip: function(req, res) {
+            return res.statusCode === 200
+        }
+    }))
+    morgan.format('errorlog', '[errorlog] :method :url :status :res');
+    app.use(morgan('errorlog', {
+        stream: accessLog,
+        skip: function(req, res) {
+            return res.statusCode > 400
+        }
+    }))
+}
+
 app.use(express.static('public/img'));
 routes(app);
 
