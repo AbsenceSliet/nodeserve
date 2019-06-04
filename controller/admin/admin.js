@@ -19,8 +19,8 @@ class Admin extends BaseComponent {
     }
     async login(req, res, next) {
 
-        const { username, password, status = 1 } = req.body
-        console.log(username);
+        const { username, password } = req.body
+        let status = null;
         if (!username) {
             throw new Error('用户名参数错误')
         } else if (!password) {
@@ -30,9 +30,19 @@ class Admin extends BaseComponent {
         const newpassword = this.md5Decode(this.decodePassword(password))
 
         const admin = await AdminModel.findOne({ username })
-            // admin.password = admin.password || this.md5Decode(AUTH.defaultPassword)
-        if (!admin) {
 
+        // admin.password = admin.password || this.md5Decode(AUTH.defaultPassword)
+        const token = jwt.sign({
+            data: AUTH.data,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
+        }, AUTH.jwtToken)
+
+        if (!admin) {
+            if (username === 'admin') {
+                status = 2
+            } else {
+                status = 1
+            }
             const adminTip = status == 1 ? `普通会员` : `超级管理员`
             const admin_id = await this.getId('admin_id')
             const adminContent = {
@@ -41,22 +51,25 @@ class Admin extends BaseComponent {
                 create_time: moment().format('YYYY-MM-DD HH:mm:ss'),
                 admin: adminTip,
                 status,
-                admin_id: admin_id
+                admin_id: admin_id,
+                slogan: token
             }
             await AdminModel.create(adminContent)
-            handleSuccess({ res, code: 1, message: '注册管理员成功' })
+            handleSuccess({
+                res,
+                code: 1,
+                result: {
+                    token,
+                    userstatus: status,
+                },
+                message: '注册管理员成功'
+            })
         } else if (newpassword != admin.password) {
             handleError({
                 res,
                 message: '用户名已经存在，密码错误'
             })
         } else {
-
-            const token = jwt.sign({
-                data: AUTH.data,
-                exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
-            }, AUTH.jwtToken)
-            console.log(token, 'token', AUTH.data, '----', AUTH.jwtToken);
             await AdminModel.updateOne({ _id: admin._id }, { $set: { slogan: token } })
             handleSuccess({
                 res,

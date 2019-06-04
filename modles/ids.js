@@ -11,6 +11,7 @@ const idsSchema = new mongoose.Schema({
 const Ids = mongoose.model('Ids', idsSchema)
 
 Ids.findOne((err, data) => {
+    console.log(data, 'kkkkkkkkkkk');
     if (!data) {
         const newIds = new Ids({
             admin_id: 0,
