@@ -23,7 +23,7 @@ module.exports = {
             ref: 'origin/master',
             repo: 'git@github.com:AbsenceSliet/nodeserve.git',
             path: '/www/nodeServer/production',
-            'post-deploy': 'yarn  && pm2 startOrRestart ecosystem.config.js --env production',
+            'post-deploy': 'yarn  ',
             env: {
                 NODE_ENV: "production"
             }
