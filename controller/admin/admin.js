@@ -112,7 +112,6 @@ class Admin extends BaseComponent {
             })
             return
         }
-        console.log(info)
         let roles = [];
         roles = info.status == 1 ? ['editor'] : ['editor', 'admin']
         handleSuccess({
@@ -133,7 +132,6 @@ class Admin extends BaseComponent {
 
     //上传头像
     async uploadImage(req, res, next) {
-        console.log(req.params)
         let { admin_id } = req.params
         if (!admin_id || !Number(admin_id)) {
             handleError({
