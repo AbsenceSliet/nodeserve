@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
         name: 'API',
-        script: 'start.js',
+        script: 'npm -- run start',
 
         args: 'one two',
         instances: 1,
