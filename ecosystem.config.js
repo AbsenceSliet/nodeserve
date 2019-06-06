@@ -4,7 +4,7 @@ module.exports = {
         script: 'npm -- run start',
 
         args: 'one two',
-        instances: 1,
+        instances: max,
         autorestart: true,
         watch: false,
         max_memory_restart: '1G',
