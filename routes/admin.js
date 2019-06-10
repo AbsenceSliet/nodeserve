@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post('/login', Admin.login)
 router.get('/getuserinfo', Admin.getAdminInfo)
-router.post('/auth/upload/avatar/:admin_id', Admin.uploadImage)
 
+// router.post('/auth/upload/avatar/:admin_id', Admin.uploadImage)
+router.post('/auth/upload/avatar/:admin_id', Admin.uploadQiNiu)
 export default router

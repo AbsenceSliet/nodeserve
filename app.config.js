@@ -14,6 +14,7 @@ export const QINIU = {
     accessKey: argv.qn_a_key || 'your qiniu accessKey',
     secretKey: argv.qn_s_key || 'your qiniu secretKey',
     bucketKey: argv.qn_b_key || 'your qiniu bucketKey',
+    domainKey: argv.qn_dm_key || 'your qiniu domainKey'
 }
 export const environment = process.env.NODE_ENV;
 export const isDevMode = Object.is(environment, 'development')

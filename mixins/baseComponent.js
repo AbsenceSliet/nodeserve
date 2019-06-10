@@ -5,13 +5,73 @@ import path from 'path'
 import fs from 'fs'
 import gm from 'gm'
 import { handleSuccess, handleError } from '../utils/helper'
-import QINIU from '../app.config'
+import { QINIU } from '../app.config.js'
 import qiniu from 'qiniu'
+
+
+/**
+ * 解决this指向问题
+ * 类的方法内部如果含有this，它默认只想类的实例 
+ * class Logger {
+     printName(name = 'there') {
+         this.print(`Hello ${name}`);
+     }
+
+     print(text) {
+         console.log(text);
+     }
+ }
+
+ const logger = new Logger();
+ const {
+     printName
+ } = logger;
+ printName(); // TypeError: Cannot read property 'print' of undefined
+
+ printName方法中的this默认指向looger类，但如果单独抽离出来， 则会只想该方法 运行时的环境 由于class 内部是严格模式 ，因此this指向是undefined
+
+
+ 解决方法
+ 1、在构造方法中绑定this
+ constructor(){
+     this.printName = this.printName.bind(this)
+ }
+ 2、使用箭头函数
+class Obj {
+    constructor() {
+        this.getThis = () => this;
+    }
+}
+
+const myObj = new Obj();
+myObj.getThis() === myObj // true
+3、 使用Proxy,获取方法时，绑定this
+function selfish(target) {
+    const cache = new WeakMap();
+    const handler = {
+        get(target, key) {
+            const value = Reflect.get(target, key);
+            if (typeof value !== 'function') {
+                return value;
+            }
+            if (!cache.has(value)) {
+                cache.set(value, value.bind(target));
+            }
+            return cache.get(value);
+        }
+    };
+    const proxy = new Proxy(target, handler);
+    return proxy;
+}
+
+const logger = selfish(new Logger());
+ */
 
 
 export default class BaseComponent {
     constructor() {
         this.idList = ['admin_id', "img_id", "article_id", "category_id"]
+        this.upQiNiu = this.upQiNiu.bind(this)
     }
     async fetch(url = '', data = {}, type = 'GET', resType = 'JSON') {
         type = type.toUpperCase();
@@ -59,13 +119,11 @@ export default class BaseComponent {
     //获取id列表
     async getId(type) {
         if (!this.idList.includes(type)) {
-            console.log('id类型错误');
             throw new Error('id类型错误');
             return
         }
         try {
             const idData = await Ids.findOne();
-            console.log(idData, 'idData');
             idData[type]++;
             await idData.save();
             return idData[type]
@@ -111,7 +169,6 @@ export default class BaseComponent {
                             resolve(fullname)
                         })
                 } catch (err) {
-                    console.log('保存图片失败')
                     if (fs.existsSync(targetFile)) {
                         fs.unlinkSync(targetFile)
                     } else {
@@ -123,8 +180,9 @@ export default class BaseComponent {
         })
     }
 
+
     //上传至七牛
-    async upQiNiu(req) {
+    async upQiNiu(req, res) {
         return new Promise((resolve, reject) => {
             const form = new formidable.IncomingForm()
             const uploadpath = path.join(__dirname, '../public/img/')
@@ -142,10 +200,14 @@ export default class BaseComponent {
                 const fullname = hashname + extname
                 const targetFile = path.join(uploadpath, fullname)
                 try {
-                    fs.renameSync(file.file.path, targetFile)
-                    const token = this.uptoken()
+                    await fs.renameSync(file.file.path, targetFile)
+                    let token = this.uptoken(fullname)
+                    const qiniuimgInfo = await this.uploadFile(token, fullname, targetFile)
+                    let qiniuimg = qiniuimgInfo.key;
+                    let sourceLink = QINIU.domainKey + qiniuimg
+                    fs.unlinkSync(targetFile)
+                    resolve(sourceLink)
                 } catch (err) {
-                    console.log('保存图片失败')
                     if (fs.existsSync(targetFile)) {
                         fs.unlinkSync(targetFile)
                     } else {
@@ -158,16 +220,16 @@ export default class BaseComponent {
     }
 
     //获取七牛token
-    uptoken() {
+    uptoken(key) {
         var mac = new qiniu.auth.digest.Mac(QINIU.accessKey, QINIU.secretKey);
-
         var options = {
-            scope: QINUI.bucketKey
-        }
-
+            scope: `${QINIU.bucketKey}:${key}`,
+            returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
+            expires: 7200
+        };
         var putPolicy = new qiniu.rs.PutPolicy(options);
-
-        return putPolicy.uploadToken(mac);
+        var uploadToken = putPolicy.uploadToken(mac);
+        return uploadToken
     }
 
     uploadFile(upToken, key, localFile) {
@@ -180,14 +242,9 @@ export default class BaseComponent {
                 respBody, respInfo) {
                 if (respErr) {
                     reject(respErr)
-                    console.log('图片上传七牛云')
                 }
                 if (respInfo.statusCode == 200) {
-                    console.log(' 上传成功')
-                    console.log(respBody);
-                } else {
-                    console.log(respInfo.statusCode);
-                    console.log(respBody);
+                    resolve(respBody)
                 }
             })
         })

@@ -1,5 +1,6 @@
 import AdminModel from '../../modles/admin/admin'
 import BaseComponent from '../../mixins/baseComponent'
+import authIsVerified from '../../utils/auth'
 import { Base64 } from 'js-base64'
 import { AUTH } from '../../app.config'
 import Crypto from 'crypto'
@@ -15,6 +16,7 @@ class Admin extends BaseComponent {
         this.decodePassword = this.decodePassword.bind(this)
         this.md5Decode = this.md5Decode.bind(this)
         this.uploadImage = this.uploadImage.bind(this)
+        this.uploadQiNiu = this.uploadQiNiu.bind(this)
 
     }
     async login(req, res, next) {
@@ -93,41 +95,53 @@ class Admin extends BaseComponent {
         return Crypto.createHash('md5').update(password).digest('jac')
     }
     async getAdminInfo(req, res, next) {
-        if (!req.headers.authorization) {
+        let TokenIsOk = authIsVerified(req)
+        console.log(TokenIsOk, 'kkkkk');
+        if (TokenIsOk) {
+            const slogan = req.headers.authorization.split(' ')[1]
+            let info = await AdminModel.findOne(({
+                slogan: slogan
+            }));
+            if (!info) {
+                handleError({
+                    res,
+                    code: 0,
+                    message: 'Token失效!',
+                    err: 'Token失效'
+                })
+                return
+            }
+            let roles = [];
+            roles = info.status == 1 ? ['editor'] : ['editor', 'admin']
+            handleSuccess({
+                res,
+                result: {
+                    username: info.username,
+                    userstatus: info.status,
+                    id: info._id,
+                    create_time: info.create_time,
+                    avatar: info.avatar,
+                    admin_id: info.admin_id,
+                    roles
+                },
+                message: '查询成功',
+                code: 1
+            })
+            next()
+        } else if (!req.headers.authorization) {
             handleError({
                 res,
                 code: 0,
                 message: '请登录!',
                 err: '未登录'
             })
-        }
-        const slogan = req.headers.authorization.split(' ')[1]
-        let info = await AdminModel.findOne(({ slogan: slogan }));
-        if (!info) {
+        } else {
             handleError({
                 res,
-                code: 0,
-                message: 'Token失效!',
-                err: 'Token失效'
+                message: 'Token失效',
+                code: 401
             })
-            return
         }
-        let roles = [];
-        roles = info.status == 1 ? ['editor'] : ['editor', 'admin']
-        handleSuccess({
-            res,
-            result: {
-                username: info.username,
-                userstatus: info.status,
-                id: info._id,
-                create_time: info.create_time,
-                avatar: info.avatar,
-                admin_id: info.admin_id,
-                roles
-            },
-            message: '查询成功',
-            code: 1
-        })
     }
 
     //上传头像
@@ -143,6 +157,44 @@ class Admin extends BaseComponent {
         try {
             let image_path = await this.getPath(req);
             await AdminModel.findOneAndUpdate({ admin_id: admin_id }, { $set: { avatar: image_path } })
+            handleSuccess({
+                res,
+                code: 1,
+                message: '上传图片成功',
+                result: {
+                    image_path
+                }
+            })
+        } catch (err) {
+            handleError({
+                res,
+                code: 0,
+                message: '上传图片失败'
+            })
+        }
+    }
+
+    //上传图片至七牛云
+    async uploadQiNiu(req, res) {
+        const { admin_id } = req.params
+        console.log(admin_id, 'admin_id');
+        if (!admin_id || !Number(admin_id)) {
+            handleError({
+                res,
+                code: 0,
+                message: 'admin_id参数错误'
+            })
+        }
+        try {
+            let image_path = await this.upQiNiu(req);
+
+            await AdminModel.findOneAndUpdate({
+                admin_id: admin_id
+            }, {
+                $set: {
+                    avatar: image_path
+                }
+            })
             handleSuccess({
                 res,
                 code: 1,

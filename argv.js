@@ -42,4 +42,11 @@ argv.options({
         describe: 'qiniu data name',
         type: 'string'
     },
+    'qn_domain_key': {
+        alias: 'qn_dm_key',
+        demandOption: true,
+        default: 'http://source.blog.garener.com/',
+        describe: 'qiniu source domain',
+        type: 'string'
+    },
 }).argv
