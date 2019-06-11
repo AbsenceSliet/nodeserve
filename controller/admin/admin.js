@@ -96,7 +96,6 @@ class Admin extends BaseComponent {
     }
     async getAdminInfo(req, res, next) {
         let TokenIsOk = authIsVerified(req)
-        console.log(TokenIsOk, 'kkkkk');
         if (TokenIsOk) {
             const slogan = req.headers.authorization.split(' ')[1]
             let info = await AdminModel.findOne(({

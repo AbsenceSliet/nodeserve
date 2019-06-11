@@ -7,7 +7,6 @@ const authToken = req => {
         return false
     }
     const parts = req.headers.authorization.split(' ')
-    console.log(parts, 'parts')
     if (parts.length === 2 && parts[0] === 'Bearer') {
         return parts[1]
     }
@@ -16,7 +15,6 @@ const authToken = req => {
 // 验证权限
 const authIsVerified = req => {
     const token = authToken(req)
-    console.log(token, '-----', AUTH.jwtToken);
     if (token) {
         try {
             const decodedToken = jwt.verify(token, AUTH.jwtToken)
