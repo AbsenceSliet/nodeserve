@@ -27,7 +27,6 @@ app.all('*', (req, res, next) => {
 app.use((req, res, next) => {
     let TokenIsOk = authIsVerified(req)
     let { url } = req
-    console.log(123999);
     if (url.indexOf('/auth') > -1) {
         if (TokenIsOk) {
             next()

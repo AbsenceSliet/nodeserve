@@ -176,7 +176,6 @@ class Admin extends BaseComponent {
     //上传图片至七牛云
     async uploadQiNiu(req, res) {
         const { admin_id } = req.params
-        console.log(admin_id, 'admin_id');
         if (!admin_id || !Number(admin_id)) {
             handleError({
                 res,
