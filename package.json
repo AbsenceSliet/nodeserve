@@ -33,13 +33,13 @@
         "time-formater": "^1.1.2",
         "yargs": "^13.2.2",
         "file-stream-rotator": "^0.4.1",
-        "moment": "^2.24.0",
+        "moment": "^2.29.2",
         "morgan": "^1.9.1",
         "nodemon": "^1.18.10"
     },
     "devDependencies": {
         "file-stream-rotator": "^0.4.1",
-        "moment": "^2.24.0",
+        "moment": "^2.29.2",
         "morgan": "^1.9.1",
         "nodemon": "^1.18.10"
     }
